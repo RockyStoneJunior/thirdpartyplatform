@@ -15,19 +15,25 @@ public class MenuController {
 
     @RequestMapping(value = "/create", method = {RequestMethod.POST})
     @ResponseBody
-    public Map<String, String> createMenu(@RequestBody Map[] menu) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public Map<String, String> createMenu(@RequestBody Map request_menu) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         //public String createMenu(@RequestBody Map[] menu) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
         Menu new_menu = new Menu();
         List<Button> main_button = new ArrayList<Button>();
 
         try {
+
+            String platform_name = (String)request_menu.get("platform_name");
+            ArrayList menu_list = (ArrayList) request_menu.get("menu");
+
+            Map menu[] = (Map[]) menu_list.toArray(new Map[menu_list.size()]);
+
+            System.out.println("platform_name: " + platform_name);
+            System.out.println("menu: " + menu_list.toString());
+
             for (int i = 0; i < menu.length; i++) {
-                //System.out.println("main_menu: " + menu[i].get("main_menu"));
 
                 ArrayList sub_menu = (ArrayList) (menu[i].get("sub_menu"));
-
-                //System.out.println("sub_menu_item.size: " + sub_menu.size());
 
                 List<Button> sub_button = new ArrayList<Button>();
 
