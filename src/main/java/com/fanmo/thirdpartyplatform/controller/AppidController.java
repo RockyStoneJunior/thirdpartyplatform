@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Api(tags = "添加和编辑用户信息")
 @RestController
-@RequestMapping(value="/appid")
+@RequestMapping(value="/thirdpartyplatform/appid")
 public class AppidController {
     @Autowired
     private AppIdRepository appIdRepository;

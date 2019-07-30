@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Api(tags = "用户注册和登录")
 @RestController
-@RequestMapping(value="/user")
+@RequestMapping(value="/thirdpartyplatform/user")
 public class UserController {
 	
 	@Autowired
