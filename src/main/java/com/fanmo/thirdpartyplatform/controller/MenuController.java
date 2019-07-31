@@ -134,7 +134,6 @@ public class MenuController {
             new_platformMenu.setMenu(JSON.toJSON(request_menu).toString());
 
             platformMenuRepository.save(new_platformMenu);
-
             Map<String, String> resultMap = new HashMap<String, String>();
             resultMap.put("msg", result.toString());
             resultMap.put("code", "0");
