@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface AppIdRepository extends JpaRepository<AppId, Long> {
     AppId findByPlatformAppid(String appid);
+    List<AppId> findByPlatformName(String platform_name);
     AppId findByUsername(String username);
     AppId findByUsernameAndPassword(String username, String password);
 

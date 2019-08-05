@@ -38,6 +38,7 @@ public class MenuController {
         List<Button> main_button = new ArrayList<Button>();
 
         try {
+            Map<String, String> resultMap = new HashMap<String, String>();
 
             String platform_name = (String)request_menu.get("platform_name");
             String b_username = (String)request_menu.get("b_username");
@@ -70,6 +71,9 @@ public class MenuController {
                                     miniProButton.setName((String) sub_menu_item.get("name"));
                                     miniProButton.setAppid((String) sub_menu_item.get("appid"));
                                     miniProButton.setPagepath((String) sub_menu_item.get("url"));
+
+                                    System.out.println("miniprogram url: " + (String) sub_menu_item.get("url") );
+
                                     miniProButton.setUrl("http://mp.weixin.qq.com");
                                     miniProButton.setType("miniprogram");
 
@@ -116,27 +120,55 @@ public class MenuController {
 
             String create_menu = JSON.toJSON(new_menu).toString();
             System.out.println(create_menu);
-            String menu_url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + getAccessToken();
+
+            List<AppId> platform_appid = appIdRepository.findByPlatformName(platform_name);
+
+            if(platform_appid == null){
+                resultMap.put("msg", "该微信公众平台不存在！");
+                resultMap.put("code", "2");
+                return resultMap;
+            }
+
+            String menu_url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + getAccessToken(platform_appid.get(0).getPlatformAppid(), platform_appid.get(0).getPlatformSecret());
             StringBuffer result = HttpUtil.httpsRequest(menu_url, "POST", create_menu);
             System.out.println(result);
 
-            PlatformMenu platformMenu = platformMenuRepository.findByPlatformName(platform_name);
+            JSONObject jsonObject =  JSON.parseObject(result.toString());
+            int errcode = (int)jsonObject.get("errcode");
 
-            PlatformMenu new_platformMenu = new PlatformMenu();
+            if(errcode == 0) {
+                PlatformMenu platformMenu = platformMenuRepository.findByPlatformName(platform_name);
 
-            if(platformMenu != null){
-                new_platformMenu.setId(platformMenu.getId());
-                new_platformMenu.setDate(new Date());
+                PlatformMenu new_platformMenu = new PlatformMenu();
+
+                if (platformMenu != null) {
+                    new_platformMenu.setId(platformMenu.getId());
+                    new_platformMenu.setDate(new Date());
+                }
+
+                new_platformMenu.setPlatformName(platform_name);
+                new_platformMenu.setbUsername(b_username);
+                new_platformMenu.setMenu(JSON.toJSON(request_menu).toString());
+
+                platformMenuRepository.save(new_platformMenu);
+                resultMap.put("msg", result.toString());
+                resultMap.put("code", "0");
+            }else if(errcode == 40164){
+                resultMap.put("msg", "ip地址无效，需要配置公众号后台白名单！");
+                resultMap.put("code", "1");
+            }else if(errcode == 40166){
+                resultMap.put("msg", "小程序的Appid无效！");
+                resultMap.put("code", "1");
+            }else if(errcode == 40027){
+                resultMap.put("msg", "子菜单的url无效！");
+                resultMap.put("code", "1");
+            }else if(errcode == 40155){
+                resultMap.put("msg", "不能包含其他主页的url！");
+                resultMap.put("code", "1");
+            }else{
+                resultMap.put("msg", result.toString());
+                resultMap.put("code", "1");
             }
-
-            new_platformMenu.setPlatformName(platform_name);
-            new_platformMenu.setbUsername(b_username);
-            new_platformMenu.setMenu(JSON.toJSON(request_menu).toString());
-
-            platformMenuRepository.save(new_platformMenu);
-            Map<String, String> resultMap = new HashMap<String, String>();
-            resultMap.put("msg", result.toString());
-            resultMap.put("code", "0");
 
             return resultMap;
         } catch (Exception e) {
@@ -150,14 +182,17 @@ public class MenuController {
         }
     }
 
-    private String appid = "wxc6a0290ecf70a53d";
-    private String secret = "c8822820e126922f20d12b82a5ecce35";
+//    private String appid = "wxc6a0290ecf70a53d";
+//    private String secret = "c8822820e126922f20d12b82a5ecce35";
+//
+//    private String access_token_requestUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+//            + appid + "&secret=" + secret;
 
-    private String access_token_requestUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
-            + appid + "&secret=" + secret;
-
-    public String getAccessToken() {
+    public String getAccessToken(String appid, String secret) {
         try {
+            String access_token_requestUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="
+                    + appid + "&secret=" + secret;
+
             System.out.println("微信公众号token定时任务开始");
             StringBuffer token_result = HttpUtil.httpsRequest(access_token_requestUrl, "GET", "");
             String token_string = new String(token_result);
@@ -182,9 +217,14 @@ public class MenuController {
         }else{
             PlatformMenu platformMenu = platformMenuRepository.findByPlatformName(platform_name);
 
-            resultMap.put("code", "0");
-            resultMap.put("msg", "公众平台菜单查找成功！");
-            resultMap.put("data", platformMenu.getMenu());
+            if(platformMenu != null) {
+                resultMap.put("code", "0");
+                resultMap.put("msg", "公众平台菜单查找成功！");
+                resultMap.put("data", platformMenu.getMenu());
+            }else{
+                resultMap.put("code", "1");
+                resultMap.put("msg", "菜单不存在！");
+            }
         }
 
         return resultMap;

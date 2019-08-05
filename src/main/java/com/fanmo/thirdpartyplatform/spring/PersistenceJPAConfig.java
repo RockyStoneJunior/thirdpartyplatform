@@ -19,7 +19,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @PropertySource({"classpath:persistence.properties"})
 @ComponentScan({"com.fanmo.thirdpartyplatform.persistence"})
-@EnableJpaRepositories(basePackages = "com.fanmo.thirdpartyplatform.persistence.dao")
+@EnableJpaRepositories(basePackages = {"com.fanmo.thirdpartyplatform.persistence.dao","com.fanmo.thirdpartyplatform.persistence.daoImpl"})
 public class PersistenceJPAConfig {
 	@Autowired
 	private Environment env;
@@ -62,7 +62,8 @@ public class PersistenceJPAConfig {
 		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
 		hibernateProperties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
 		hibernateProperties.setProperty("hibernate.connection.characterEncoding", env.getProperty("hibernate.connection.characterEncoding"));
-		
+		hibernateProperties.setProperty("hibernate.current_session_context_class", "org.springframework.orm.hibernate5.SpringSessionContext");
+
 		return hibernateProperties;
 	}
 }
