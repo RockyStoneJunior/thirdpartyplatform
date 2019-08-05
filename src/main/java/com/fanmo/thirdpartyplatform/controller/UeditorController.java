@@ -74,12 +74,20 @@ public class UeditorController {
         return resultMap;
     }
 
-    @RequestMapping(value = "/get_artical", method = {RequestMethod.GET})
+    @RequestMapping(value = "/get_all_articals", method = {RequestMethod.GET})
     public List<Article> getArtical(){
 
         //List<Article> artical = articleRepository.findAllByPlatformName(platform_name);
 
         return articleRepository.findAllGroupbyGroupid();
+    }
+
+    @RequestMapping(value = "/get_articals_by_groupid", method = {RequestMethod.GET})
+    public List<Article> getArticalByGroupid(@RequestParam("groupid") String groupid){
+
+        //List<Article> artical = articleRepository.findAllByPlatformName(platform_name);
+
+        return articleRepository.findAllByGroupid(groupid);
     }
 
     @RequestMapping(value = "/upload_image", method = RequestMethod.POST)

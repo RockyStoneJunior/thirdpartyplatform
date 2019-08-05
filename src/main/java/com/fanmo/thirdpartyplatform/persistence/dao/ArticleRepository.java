@@ -11,4 +11,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByAuthor(String author);
 
     List<Article> findAllGroupbyGroupid();
+
+    List<Article> findAllByGroupid(String groupid);
 }

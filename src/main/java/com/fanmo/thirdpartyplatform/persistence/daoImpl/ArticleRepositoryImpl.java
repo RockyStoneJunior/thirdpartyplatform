@@ -23,7 +23,7 @@ public class ArticleRepositoryImpl {
 
     }
 
-    List<Article> findAllGroupbyGroupid(){
+    public List<Article> findAllGroupbyGroupid(){
         Session session = sessionFactory.getCurrentSession();
         String hql = "from Article group by groupid";
         org.hibernate.Query query = session.createQuery(hql);
