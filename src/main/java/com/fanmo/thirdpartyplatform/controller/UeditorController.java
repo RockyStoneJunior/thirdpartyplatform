@@ -28,7 +28,7 @@ public class UeditorController {
     ArticleRepository articleRepository;
 
 
-    @RequestMapping(value = "/exec")
+    @RequestMapping(value = "/exec", method = {RequestMethod.POST,RequestMethod.GET})
     public String exec( HttpServletRequest request) throws UnsupportedEncodingException, JSONException {
         request.setCharacterEncoding("utf-8");
         String rootPath = request.getServletContext().getRealPath("/");
@@ -74,20 +74,44 @@ public class UeditorController {
         return resultMap;
     }
 
-    @RequestMapping(value = "/get_all_articals", method = {RequestMethod.GET})
-    public List<Article> getArtical(){
+    @RequestMapping(value = "/get_all_articles", method = {RequestMethod.GET})
+    public List<Article> getArtical(@RequestParam("b_username") String b_username){
 
         //List<Article> artical = articleRepository.findAllByPlatformName(platform_name);
 
-        return articleRepository.findAllGroupbyGroupid();
+        return articleRepository.findAllGroupbyGroupid(b_username);
     }
 
-    @RequestMapping(value = "/get_articals_by_groupid", method = {RequestMethod.GET})
-    public List<Article> getArticalByGroupid(@RequestParam("groupid") String groupid){
+    @RequestMapping(value = "/get_articles_by_groupid", method = {RequestMethod.GET})
+    public List<Article> getArticalByGroupid(@RequestParam("groupid") String groupid,@RequestParam("b_username") String b_username){
 
         //List<Article> artical = articleRepository.findAllByPlatformName(platform_name);
 
-        return articleRepository.findAllByGroupid(groupid);
+        return articleRepository.findAllByGroupidAndBUsername(groupid, b_username);
+    }
+
+    @RequestMapping(value = "/delete_articles_by_groupid", method = {RequestMethod.GET})
+    public Map<String, String> deleteArticalByGroupid(@RequestParam("groupid") String groupid,@RequestParam("b_username") String b_username){
+
+        articleRepository.deleteArticlesByGroupidAndBUsername(groupid, b_username);
+
+        Map<String, String> resultMap = new HashMap<String, String>();
+        resultMap.put("msg", "文章删除成功！");
+        resultMap.put("code", "0");
+
+        return resultMap;
+    }
+
+    @RequestMapping(value = "/delete_article_by_id", method = {RequestMethod.GET})
+    public Map<String, String> deleteArticalByid(@RequestParam("id") String id,@RequestParam("b_username") String b_username){
+
+        articleRepository.deleteArticleByIdAndBUsername(Long.parseLong(id), b_username);
+
+        Map<String, String> resultMap = new HashMap<String, String>();
+        resultMap.put("msg", "文章删除成功！");
+        resultMap.put("code", "0");
+
+        return resultMap;
     }
 
     @RequestMapping(value = "/upload_image", method = RequestMethod.POST)

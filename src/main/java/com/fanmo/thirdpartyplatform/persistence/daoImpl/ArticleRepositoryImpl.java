@@ -23,9 +23,9 @@ public class ArticleRepositoryImpl {
 
     }
 
-    public List<Article> findAllGroupbyGroupid(){
+    public List<Article> findAllGroupbyGroupid(String b_username){
         Session session = sessionFactory.getCurrentSession();
-        String hql = "from Article group by groupid";
+        String hql = "from Article where bUsername='" + b_username + "' group by groupid";
         org.hibernate.Query query = session.createQuery(hql);
         List result = query.list();
 
